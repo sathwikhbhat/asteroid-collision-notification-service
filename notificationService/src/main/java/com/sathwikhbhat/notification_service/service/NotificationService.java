@@ -6,6 +6,7 @@ import com.sathwikhbhat.notification_service.repository.NotificationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +18,9 @@ public class NotificationService {
 
     @Autowired
     NotificationRepository notificationRepository;
+
+    @Autowired
+    EmailService emailService;
 
     @KafkaListener(topics = "asteroid-alert", groupId = "notification-service")
     public void alertEvent(AsteroidCollisionEvent notificationEvent) {
@@ -32,6 +36,12 @@ public class NotificationService {
 
         Notification savedNotification = notificationRepository.saveAndFlush(notification);
         log.info("Notification saved: {}", savedNotification);
+    }
+
+    @Scheduled(fixedRate = 10000)
+    public void sendAlertingEmail() {
+        log.info("Triggering scheduled job to send email alerts");
+        emailService.sendAsteroidAlertEmail();
     }
 
 }
