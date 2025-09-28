@@ -5,6 +5,7 @@ import com.sathwikhbhat.astro_alert.dto.Asteroids;
 import com.sathwikhbhat.astro_alert.event.AsteroidCollisionEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,6 +17,9 @@ public class AsteroidAlertingService {
 
     @Autowired
     private NasaClient nasaClient;
+
+    @Autowired
+    private KafkaTemplate<String, AsteroidCollisionEvent> kafkaTemplate;
 
     public void alert() {
         log.info("Alerting asterid service called");
@@ -34,6 +38,12 @@ public class AsteroidAlertingService {
 
         List<AsteroidCollisionEvent> asteroidCollisionEvents =
                 createEventListOfDangerousAsteroids(dangerousAsteroids);
+
+        log.info("Sending {} asteroid alerts to Kafka", asteroidCollisionEvents.size());
+        asteroidCollisionEvents.forEach(event -> {
+            kafkaTemplate.send("asteroid-alerts", event);
+            log.info("Asteroid alert sent to Kafka Topic: {}", event.getAsteroidName());
+        });
 
     }
 
