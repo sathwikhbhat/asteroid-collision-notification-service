@@ -2,6 +2,7 @@ package com.sathwikhbhat.astro_alert.service;
 
 import com.sathwikhbhat.astro_alert.client.NasaClient;
 import com.sathwikhbhat.astro_alert.dto.Asteroids;
+import com.sathwikhbhat.astro_alert.event.AsteroidCollisionEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,5 +31,27 @@ public class AsteroidAlertingService {
                 .filter(Asteroids::isPotentiallyHazardousAsteroid)
                 .toList();
         log.info("Found {} hazardous asteroids", dangerousAsteroids.size());
+
+        List<AsteroidCollisionEvent> asteroidCollisionEvents =
+                createEventListOfDangerousAsteroids(dangerousAsteroids);
+
     }
+
+    private List<AsteroidCollisionEvent> createEventListOfDangerousAsteroids(List<Asteroids> dangerousAsteroids) {
+        return dangerousAsteroids.stream()
+                .map(asteroid -> {
+                    if (asteroid.isPotentiallyHazardousAsteroid()) {
+                        return AsteroidCollisionEvent.builder()
+                                .asteroidName(asteroid.getName())
+                                .closeApproachDate(asteroid.getCloseApproachData().getFirst().getCloseApproachDate().toString())
+                                .missDistanceInKm(asteroid.getCloseApproachData().getFirst().getMissDistance().getKilometers())
+                                .estimatedAvgDiameterInMeters(
+                                        asteroid.getEstimatedDiameter().getMeters().getMaxDiameter()
+                                                + asteroid.getEstimatedDiameter().getMeters().getMinDiameter() / 2)
+                                .build();
+                    }
+                    return null;
+                }).toList();
+    }
+
 }
