@@ -54,15 +54,9 @@ docker-compose up -d
 
 3. Set environment variables
 ```bash
-# Windows PowerShell
-$env:NASA_API_KEY="your_nasa_api_key"
-$env:GMAIL_ID="your@email.com"
-$env:GMAIL_APP_PASSWORD="your_app_password"
-
-# Linux/macOS
-export NASA_API_KEY="your_nasa_api_key"
-export GMAIL_ID="your@email.com"
-export GMAIL_APP_PASSWORD="your_app_password"
+NASA_API_KEY="your_nasa_api_key"
+GMAIL_ID="your@email.com"
+GMAIL_APP_PASSWORD="your_app_password"
 ```
 
 4. Run the services
@@ -70,7 +64,8 @@ export GMAIL_APP_PASSWORD="your_app_password"
 # Terminal 1 - Astro Alert Service
 cd "Asteroid Alerting"
 ./mvnw spring-boot:run
-
+```
+```bash
 # Terminal 2 - Notification Service
 cd "Notification Service"
 ./mvnw spring-boot:run
@@ -78,30 +73,53 @@ cd "Notification Service"
 
 ## Usage
 
-Trigger asteroid monitoring:
+### Trigger Asteroid Monitoring
 ```bash
 curl -X POST http://localhost:8080/api/v1/asteroid-alerting/alert
 ```
 
-Add users to receive notifications:
-```sql
-mysql -u root -p -h localhost -P 3306 -D asteroidalerting
-
-INSERT INTO user (full_name, email, notification_enabled) 
-VALUES ('Your Name', 'your-email@example.com', true);
+### Manage Users
+Add a user to receive notifications:
+```bash
+curl -X POST http://localhost:8081/api/users/add \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullName": "Your Name",
+    "email": "your-email@example.com",
+    "notificationEnabled": true
+  }'
 ```
+
+Get all registered users:
+```bash
+curl -X GET http://localhost:8081/api/users
+```
+
+## API Endpoints
+
+### Astro Alert Service (Port 8080)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/v1/asteroid-alerting/alert` | Triggers asteroid monitoring and alert processing |
+
+### Notification Service (Port 8081)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/users/add` | Add a new user to receive notifications |
+| GET | `/api/users` | Get all registered users |
 
 ## Services
 
 ### Astro Alert Service (Port 8080)
 - Fetches data from NASA NEO API
 - Publishes events to Kafka topic
-- REST endpoint: `POST /api/v1/asteroid-alerting/alert`
+- Provides REST endpoint for triggering alerts
 
 ### Notification Service (Port 8081) 
 - Consumes events from Kafka
 - Stores notifications in MySQL
 - Sends emails to registered users
+- Provides REST endpoints for user management
 
 ## Monitoring
 
