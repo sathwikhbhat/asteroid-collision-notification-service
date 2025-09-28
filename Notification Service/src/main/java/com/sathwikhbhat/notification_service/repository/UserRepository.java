@@ -13,4 +13,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u.email FROM User u WHERE u.notificationEnabled = true")
     List<String> findAllEmailsAndNotificationEnabled();
 
+    boolean existsByEmail(String email);
+
 }
