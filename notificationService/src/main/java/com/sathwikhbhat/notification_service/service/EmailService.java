@@ -46,14 +46,14 @@ public class EmailService {
         }
 
         toEmails.forEach(toEmail -> sendEmail(toEmail, text));
-        log.info("Email sent to: #{} users", toEmails.size());
+        log.info("Email sent to: {} users", toEmails.size());
     }
 
     private void sendEmail(String toEmail, String emailContent) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(toEmail);
         message.setFrom(fromEmail);
-        message.setSubject("Nasa Asteroid Collision Event");
+        message.setSubject("NASA Asteroid Collision Event");
         message.setText(emailContent);
         mailSender.send(message);
     }

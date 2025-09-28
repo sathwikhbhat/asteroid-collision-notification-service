@@ -22,7 +22,7 @@ public class AsteroidAlertingService {
     private KafkaTemplate<String, AsteroidCollisionEvent> kafkaTemplate;
 
     public void alert() {
-        log.info("Alerting asterid service called");
+        log.info("Alerting asteroid service called");
 
         final LocalDate fromDate = LocalDate.now();
         final LocalDate toDate = fromDate.plusDays(7);
@@ -55,9 +55,9 @@ public class AsteroidAlertingService {
                                 .asteroidName(asteroid.getName())
                                 .closeApproachDate(asteroid.getCloseApproachData().getFirst().getCloseApproachDate().toString())
                                 .missDistanceInKm(asteroid.getCloseApproachData().getFirst().getMissDistance().getKilometers())
-                                .estimatedAvgDiameterInMeters(
+                                .estimatedAvgDiameterInMeters((
                                         asteroid.getEstimatedDiameter().getMeters().getMaxDiameter()
-                                                + asteroid.getEstimatedDiameter().getMeters().getMinDiameter() / 2)
+                                                + asteroid.getEstimatedDiameter().getMeters().getMinDiameter()) / 2)
                                 .build();
                     }
                     return null;
